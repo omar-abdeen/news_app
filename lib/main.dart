@@ -13,7 +13,7 @@ void main() async {
       path:
           'assets/translations', // <-- change the path of the translation files
       fallbackLocale: const Locale('en'),
-      // startLocale: const Locale('ar'),
+    //  startLocale: const Locale('ar'),
       child: MyApp(),
     ),
   );
