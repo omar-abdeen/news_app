@@ -15,7 +15,7 @@ void main() async {
           'assets/translations', // <-- change the path of the translation files
       fallbackLocale: const Locale('en'),
        // <-- set the default locale
-      //startLocale: const Locale('ar'),
+     // startLocale: const Locale('ar'),
       child: MyApp(),
     ),
   );

@@ -1,7 +1,6 @@
-import 'dart:math';
 import 'package:dio/dio.dart';
 import 'package:news_app/core/networking/api_constants.dart';
-
+import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 class DioHelper {
   static Dio? dio;
   static initDio() {
@@ -11,10 +10,10 @@ class DioHelper {
         receiveDataWhenStatusError: true,
       ),
     );
-     
+     dio!.interceptors.add(PrettyDioLogger());
   }
 
-  static getRequest({
+  static Future<Response<dynamic>> getRequest({
     required String endPoint,
     required Map<String, dynamic> query,
   }) async {
@@ -23,10 +22,11 @@ class DioHelper {
 
       return response;
     } catch (e) {
-      log('Error in GET request: $e' as num);
+      // log('Error in GET request: $e' as num);
+      return Future.error(e);
     }
   }
-  static postRequest({
+  static Future<Response<dynamic>> postRequest({
     required String endPoint,
     required Map<String, dynamic> query,
     required Map<String, dynamic> body,
@@ -40,7 +40,8 @@ class DioHelper {
 
       return response;
     } catch (e) {
-      log('Error in POST request: $e' as num);
+      
+      return Future.error(e);
     }
   }
 }

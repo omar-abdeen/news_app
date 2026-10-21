@@ -1,12 +1,12 @@
-class TopHeadlineArticlesModel {
+class ArticleModel {
   final String? status;
   final int? totalResults;
   final List<ArticlesModel>? articles;
 
-  TopHeadlineArticlesModel({this.status, this.totalResults, this.articles});
+  ArticleModel({this.status, this.totalResults, this.articles});
 
-  factory TopHeadlineArticlesModel.fromJson(Map<String, dynamic> json) {
-    return TopHeadlineArticlesModel(
+  factory ArticleModel.fromJson(Map<String, dynamic> json) {
+    return ArticleModel(
       status: json['status'] as String?,
       totalResults: json['totalResults'] as int?,
       articles: (json['articles'] as List<dynamic>?)
