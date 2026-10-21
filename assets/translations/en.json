@@ -6,6 +6,10 @@
     "entertainment": "Entertainment",
     "cancel": "Cancel",
     "search_result": "Search Result",
-    "no_results": "No Results"
+    "no_results": "No Results",
+    "no_articles": "No Articles",
+    "error": "An error occurred",
+    "search": "Search",
+    "no_data": "No Data"
     
 }

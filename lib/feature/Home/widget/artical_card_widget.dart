@@ -1,7 +1,7 @@
-import 'package:cached_network_image_ce/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:news_app/core/styles/app_text_style.dart';
+import 'package:news_app/core/widgets/safe_network_image.dart';
 
 class ArticleCardWidget extends StatelessWidget {
   final String title;
@@ -31,6 +31,7 @@ class ArticleCardWidget extends StatelessWidget {
                 width: 200.w,
                 child: Text(
                   title,
+                  maxLines: 2,
                   style: AppTextStyles.titlesStyles.copyWith(
                     fontSize: 18.sp,
                     color: Colors.black,
@@ -40,24 +41,27 @@ class ArticleCardWidget extends StatelessWidget {
               SizedBox(height: 8.h),
               SizedBox(
                 child: Text(
-                  "$authorName . $date",
+                  authorName.length > 20 ? '${authorName.substring(0, 20)}...' : authorName,
+                  maxLines: 1,
+                  style: AppTextStyles.grey14Regular.copyWith(),
+                ),
+              ),
+              SizedBox(height: 8.h),
+              SizedBox(
+                child: Text(
+                  date,
+                  maxLines: 1,
                   style: AppTextStyles.grey14Regular.copyWith(),
                 ),
               ),
             ],
           ),
-          SizedBox(
+          SafeNetworkImage(
+            imageUrl: imageUrl,
             width: 112.w,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(8.r),
-              child: CachedNetworkImage(
-                imageUrl:
-                    imageUrl ??
-                    "https://static.toiimg.com/photo/msid-109960309/109960309.jpg",
-                height: 80.h,
-                fit: BoxFit.fill,
-              ),
-            ),
+            height: 80.h,
+            fit: BoxFit.cover,
+            borderRadius: BorderRadius.circular(8.r),
           ),
         ],
       ),
