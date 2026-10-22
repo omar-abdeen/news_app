@@ -9,6 +9,8 @@
     "no_results": "No Results",
     "no_articles": "No Articles",
     "error": "An error occurred",
+    "network_error": "Unable to load the news. Check your internet connection and try again.",
+    "retry": "Try again",
     "search": "Search",
     "no_data": "No Data"
     

@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:news_app/core/routing/app_routes.dart';
 import 'package:news_app/core/styles/app_text_style.dart';
+import 'package:news_app/feature/Home/widget/error_handle.dart';
 import 'package:news_app/model/article_model.dart';
 import 'package:news_app/feature/Home/service/home_service.dart';
 import 'package:news_app/feature/Home/widget/artical_card_widget.dart';
@@ -19,7 +20,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int? selectedCategoryIndex;
-  late final Future<ArticleModel> _headlinesFuture;
+  late Future<ArticleModel> _headlinesFuture;
 
   void _selectCategory(int index) {
     setState(() {
@@ -29,15 +30,21 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void initState() {
-    _headlinesFuture = HomeService().getTopHeadlinesArticles();
     super.initState();
+    _loadHeadlines();
   }
 
-  @override
-  void dispose() {
-    // Dispose of any resources here
-    _headlinesFuture.ignore(); // Ignore the future to prevent memory leaks
-    super.dispose();
+  void _loadHeadlines() {
+    _headlinesFuture = HomeService().getTopHeadlinesArticles();
+  }
+
+  Future<void> _refreshHeadlines() async {
+    setState(_loadHeadlines);
+    try {
+      await _headlinesFuture;
+    } on Exception {
+      // FutureBuilder displays the localized error state below.
+    }
   }
 
   @override
@@ -56,22 +63,36 @@ class _HomeScreenState extends State<HomeScreen> {
             },
             icon: const Icon(Icons.search),
           ),
-        
         ],
       ),
       body: FutureBuilder<ArticleModel>(
         future: _headlinesFuture,
         builder: (context, asyncSnapshot) {
           if (asyncSnapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: CircularProgressIndicator(color: Colors.blue),
+            return ListView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              children: const [
+                SizedBox(
+                  height: 300,
+                  child: Center(
+                    child: CircularProgressIndicator(color: Colors.blue),
+                  ),
+                ),
+              ],
             );
           } else if (asyncSnapshot.hasError) {
-            return Center(child: Text('error'.tr()));
+            return ErrorHandle(refresh: _refreshHeadlines);
           } else if (asyncSnapshot.hasData) {
             final articleModel = asyncSnapshot.data!;
-            if (articleModel.articles?.isEmpty == true) {
-              return Center(child: Text('no_articles'.tr()));
+            final articles = articleModel.articles ?? [];
+            if (articles.isEmpty) {
+              return ListView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                children: [
+                  SizedBox(height: 240.h),
+                  Center(child: Text('no_articles'.tr())),
+                ],
+              );
             }
             return Column(
               children: [
@@ -137,53 +158,53 @@ class _HomeScreenState extends State<HomeScreen> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24.0),
                   child: TopHeadlineItemWidget(
-                    title: articleModel.articles?[0].title ?? 'No Title',
-                    authorName:
-                        articleModel.articles?[0].author ?? 'Unknown Author',
-                    date: DateFormat('yyyy-MM-dd | HH:mm').format(
-                      articleModel.articles?[0].publishedAt ?? DateTime.now(),
-                    ),
+                    title: articles[0].title ?? 'No Title',
+                    authorName: articles[0].author ?? 'Unknown Author',
+                    date: DateFormat(
+                      'yyyy-MM-dd | HH:mm',
+                    ).format(articles[0].publishedAt ?? DateTime.now()),
                     imageUrl:
-                        articleModel.articles?[0].urlToImage ??
+                        articles[0].urlToImage ??
                         'https://img.magnific.com/free-vector/news-grunge-text_460848-9369.jpg?semt=ais_hybrid&w=740&q=80',
                   ),
                 ),
                 SizedBox(height: 24.h),
                 Expanded(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 32.w),
+                  child: RefreshIndicator(
+                    onRefresh: _refreshHeadlines,
                     child: ListView.builder(
-                      itemCount:
-                          articleModel.articles!.length -
-                          1, // Replace with your actual article count
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      padding: EdgeInsets.zero,
+                      itemCount: articles.length - 1,
                       itemBuilder: (context, index) {
-                        ArticlesModel article =
-                            articleModel.articles![index + 1];
-                        return InkWell(
-                          onTap: () {
-                            // Navigate to the article details screen
-                            context.pushNamed(
-                              AppRoutes.articleDetailsScreen,
-                              queryParameters: {
-                                'title': article.title ?? '',
-                                'author': article.author ?? '',
-                                'publishedAt':
-                                    article.publishedAt?.toIso8601String() ??
-                                    '',
-                                'description': article.description ?? '',
-                                'urlToImage': article.urlToImage ?? '',
-                              },
-                            );
-                          },
-                          child: ArticleCardWidget(
-                            title: article.title ?? 'No Title',
-                            authorName: article.author ?? 'Unknown Author',
-                            date: DateFormat(
-                              'yyyy-MM-dd | HH:mm',
-                            ).format(article.publishedAt ?? DateTime.now()),
-                            imageUrl:
-                                article.urlToImage ??
-                                'https://img.magnific.com/free-vector/news-grunge-text_460848-9369.jpg?semt=ais_hybrid&w=740&q=80',
+                        final article = articles[index + 1];
+                        return Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 32.w),
+                          child: InkWell(
+                            onTap: () {
+                              context.pushNamed(
+                                AppRoutes.articleDetailsScreen,
+                                queryParameters: {
+                                  'title': article.title ?? '',
+                                  'author': article.author ?? '',
+                                  'publishedAt':
+                                      article.publishedAt?.toIso8601String() ??
+                                      '',
+                                  'description': article.description ?? '',
+                                  'urlToImage': article.urlToImage ?? '',
+                                },
+                              );
+                            },
+                            child: ArticleCardWidget(
+                              title: article.title ?? 'No Title',
+                              authorName: article.author ?? 'Unknown Author',
+                              date: DateFormat(
+                                'yyyy-MM-dd | HH:mm',
+                              ).format(article.publishedAt ?? DateTime.now()),
+                              imageUrl:
+                                  article.urlToImage ??
+                                  'https://img.magnific.com/free-vector/news-grunge-text_460848-9369.jpg?semt=ais_hybrid&w=740&q=80',
+                            ),
                           ),
                         );
                       },
@@ -193,9 +214,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             );
           }
-          return const Center(
-            child: CircularProgressIndicator(color: Colors.blue),
-          );
+          return Center(child: CircularProgressIndicator(color: Colors.blue));
         },
       ),
     );
