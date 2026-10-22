@@ -7,7 +7,7 @@ class HomeService {
     try {
       final response = await DioHelper.getRequest(
         endPoint: ApiConstants.topHeadlinesEndpoint,
-        query: {'country': 'us', 'apiKey': ApiConstants.newsApiKey},
+        query: {'country': 'us', 'apiKey': ApiConstants.newsApiKey },
       );
       if (response.statusCode == 200 ) {
         ArticleModel articleModel =

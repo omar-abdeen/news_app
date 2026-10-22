@@ -51,7 +51,7 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
           } else if (asyncSnapshot.hasError) {
             return Center(
               child: Text(
-                'Error: ${asyncSnapshot.error}',
+               'error'.tr(),
                 style: AppTextStyles.white14SemiBold,
               ),
             );

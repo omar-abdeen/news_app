@@ -56,10 +56,7 @@ class _HomeScreenState extends State<HomeScreen> {
             },
             icon: const Icon(Icons.search),
           ),
-          ElevatedButton(
-            onPressed: () {},
-            child: Icon(Icons.keyboard_double_arrow_right_sharp),
-          ),
+        
         ],
       ),
       body: FutureBuilder<ArticleModel>(
@@ -70,7 +67,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: CircularProgressIndicator(color: Colors.blue),
             );
           } else if (asyncSnapshot.hasError) {
-            return Center(child: Text('error_occurred'.tr()));
+            return Center(child: Text('error'.tr()));
           } else if (asyncSnapshot.hasData) {
             final articleModel = asyncSnapshot.data!;
             if (articleModel.articles?.isEmpty == true) {
@@ -142,11 +139,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: TopHeadlineItemWidget(
                     title: articleModel.articles?[0].title ?? 'No Title',
                     authorName:
-                        articleModel.articles?[0].author ??
-                        'Unknown Author',
+                        articleModel.articles?[0].author ?? 'Unknown Author',
                     date: DateFormat('yyyy-MM-dd | HH:mm').format(
-                      articleModel.articles?[0].publishedAt ??
-                          DateTime.now(),
+                      articleModel.articles?[0].publishedAt ?? DateTime.now(),
                     ),
                     imageUrl:
                         articleModel.articles?[0].urlToImage ??
@@ -164,15 +159,32 @@ class _HomeScreenState extends State<HomeScreen> {
                       itemBuilder: (context, index) {
                         ArticlesModel article =
                             articleModel.articles![index + 1];
-                        return ArticleCardWidget(
-                          title: article.title ?? 'No Title',
-                          authorName: article.author ?? 'Unknown Author',
-                          date: DateFormat(
-                            'yyyy-MM-dd | HH:mm',
-                          ).format(article.publishedAt ?? DateTime.now()),
-                          imageUrl:
-                              article.urlToImage ??
-                              'https://img.magnific.com/free-vector/news-grunge-text_460848-9369.jpg?semt=ais_hybrid&w=740&q=80',
+                        return InkWell(
+                          onTap: () {
+                            // Navigate to the article details screen
+                            context.pushNamed(
+                              AppRoutes.articleDetailsScreen,
+                              queryParameters: {
+                                'title': article.title ?? '',
+                                'author': article.author ?? '',
+                                'publishedAt':
+                                    article.publishedAt?.toIso8601String() ??
+                                    '',
+                                'description': article.description ?? '',
+                                'urlToImage': article.urlToImage ?? '',
+                              },
+                            );
+                          },
+                          child: ArticleCardWidget(
+                            title: article.title ?? 'No Title',
+                            authorName: article.author ?? 'Unknown Author',
+                            date: DateFormat(
+                              'yyyy-MM-dd | HH:mm',
+                            ).format(article.publishedAt ?? DateTime.now()),
+                            imageUrl:
+                                article.urlToImage ??
+                                'https://img.magnific.com/free-vector/news-grunge-text_460848-9369.jpg?semt=ais_hybrid&w=740&q=80',
+                          ),
                         );
                       },
                     ),
