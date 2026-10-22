@@ -30,8 +30,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void initState() {
-    super.initState();
     _loadHeadlines();
+    super.initState();
   }
 
   void _loadHeadlines() {
@@ -45,6 +45,13 @@ class _HomeScreenState extends State<HomeScreen> {
     } on Exception {
       // FutureBuilder displays the localized error state below.
     }
+  }
+  @override
+  void dispose() {
+    // Dispose of any resources here
+    _headlinesFuture = Future.value(ArticleModel(articles: [])); // Reset the future to avoid memory leaks
+    selectedCategoryIndex = null; // Reset the selected category index
+    super.dispose();
   }
 
   @override
